@@ -1,23 +1,23 @@
 //
-//  KMBaseRequest.swift
-//  Kotmi
+//  CTBaseRequest.swift
+//  Pods
 //
-//  Created by zhy on 7/21/16.
-//  Copyright © 2016 HangZhou WeiQun IT Co., Ltd. All rights reserved.
+//  Created by zhy on 9/5/16.
+//  Copyright © 2016 OCT. All rights reserved.
 //
 
 import Foundation
 
 
-public class KMBaseRequest: NSObject {
+public class CTBaseRequest: NSObject {
     public var fields: NSMutableDictionary?
     public var httpType: NSString?
     public var apiUrl: NSString?
     
     public var success: successBlock?
     public var fail: failBlock?
-    public var uploadProgress: fbUploadProgress?
-    public var downloadProgress: fbDownloadProgress?
+    public var uploadProgress: CTUploadProgress?
+    public var downloadProgress: CTDownloadProgress?
     
     public var files: NSArray?
     public var filesData: NSData?
@@ -31,21 +31,10 @@ public class KMBaseRequest: NSObject {
     
     private var operation: NSOperation?
     
-    
-    public var HOST: String
     public override init() {
         fields = NSMutableDictionary()
         requestType = 0
-        
-        
-        HOST = "http://t.kotmi.com:9898/"
-//        #if DEBUG
-//           HOST = "http://t.kotmi.com:9898/"
-//           HOST = "http://192.168.1.122:9898/"
-//        HOST = "http://192.168.1.114:9898/"//selwyn server dbg
-//        #else
-//            HOST =  "http://m.kotmi.com/"
-//        #endif
+
         super.init()
     }
     
@@ -54,7 +43,7 @@ public class KMBaseRequest: NSObject {
             return
         }
         httpType = ((httpType != nil) ? httpType : getHttpType())
-        KMNetworkEngine.instance.timeoutInterval = timeoutInterval
+        CTNetworkEngine.instance.timeoutInterval = timeoutInterval
         
         apiUrl = (apiUrl != nil) ? apiUrl : getApiUrl()
         if apiUrl == nil || (apiUrl?.isKindOfClass(NSNull))! {
@@ -62,23 +51,10 @@ public class KMBaseRequest: NSObject {
             return
         }
         
-        if !(apiUrl!.hasPrefix("http://") || apiUrl!.hasPrefix("https://"))
-        {
-            apiUrl = NSString.init(format: "%@%@", HOST, apiUrl!)
-        }
-        
         UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-        operation = KMNetworkEngine.instance.httpRequest(httpType, URLString: apiUrl, parameters: fields, files: files, filesData:filesData, fileUploadKey: fileUploadKey, savedFilePath: savedFilePath, requestType: requestType, success: { (returnObject: AnyObject?) in
+        operation = CTNetworkEngine.instance.httpRequest(httpType, URLString: apiUrl, parameters: fields, files: files, filesData:filesData, fileUploadKey: fileUploadKey, savedFilePath: savedFilePath, requestType: requestType, success: { (returnObject: AnyObject?) in
             UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-            if returnObject is NSDictionary {
-                var errString : NSString?
-                errString = returnObject?.objectForKey("error") as? NSString
-                if ((errString != nil) && (errString!.isEqualToString("auth faild!") || errString!.isEqualToString("expired_token") ||
-                    errString!.isEqualToString("invalid_access_token"))) {
-                    NSNotificationCenter.defaultCenter().postNotificationName("NeedToReLogin", object: nil)
-                    return
-                }
-            }
+            
             if (!(returnObject is NSDictionary || returnObject is NSArray)) {
                 self.fail?(returnObject)
                 return
@@ -96,7 +72,7 @@ public class KMBaseRequest: NSObject {
                     let dataDict = tmpDic?.objectForKey("data")
                     if dataDict != nil {
                         if (self.requestModel != nil && (dataDict?.isKindOfClass(NSDictionary))!) {
-                            self.success?(KMUtility.convertDictionaryToModel(dataDict! as! [NSObject : AnyObject], className: self.requestModel! as String))
+//                            self.success?(CTUtility.convertDictionaryToModel(dataDict! as! [NSObject : AnyObject], className: self.requestModel! as String))
                         } else if ((dataDict?.isKindOfClass(NSNull))!) {
                             self.fail?(returnObject)
                         } else {
@@ -106,7 +82,7 @@ public class KMBaseRequest: NSObject {
                 }
                 else {
                     if (self.requestModel != nil) {
-                        self.success?(KMUtility.convertDictionaryToModel(tmpDic! as [NSObject : AnyObject], className: self.requestModel! as String))
+//                        self.success?(CTUtility.convertDictionaryToModel(tmpDic! as [NSObject : AnyObject], className: self.requestModel! as String))
                     } else {
                         self.success?(tmpDic)
                     }
@@ -116,7 +92,6 @@ public class KMBaseRequest: NSObject {
             } else {
                 if tmpDic?.objectForKey("errorCode") != nil {
                     self.fail?(returnObject)
-                    KMErrorCodeService.showErrorMessage(tmpDic?.objectForKey("errorCode"))
                 } else {
                     self.fail?(returnObject)
                 }
@@ -126,11 +101,6 @@ public class KMBaseRequest: NSObject {
                 
                 UIApplication.sharedApplication().networkActivityIndicatorVisible = false
                 self.fail?(error)
-                if error?.code == -1009 {
-                    KMUtility.makeToast("网络无连接，请检查网络")
-                } else {
-                    KMErrorCodeService.showErrorMessage(error?.code)
-                }
             }, uploadProgress: { (totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) in
                 self.uploadProgress?(totalBytesWritten, totalBytesExpectedToWrite)
             }, downloadProgress: { (totalBytesRead: Int64, totalBytesExpectedToRead: Int64) in

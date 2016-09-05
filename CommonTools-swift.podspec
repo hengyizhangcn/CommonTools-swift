@@ -34,6 +34,18 @@ common tools, like base request, base tableview etc.
 
   # s.source_files = 'CommonTools-swift/CommonTools-swift.h'
 
+  s.subspec 'BaseRequest' do |ss|
+    ss.source_files = 'CommonTools-swift/BaseRequest/*'
+  end
+
+  s.subspec 'BaseTableView' do |ss|
+    ss.source_files = 'CommonTools-swift/BaseTableView/*'
+  end
+
+  s.subspec 'Categories' do |ss|
+    ss.source_files = 'CommonTools-swift/Categories/*'
+  end
+
   # s.resource_bundles = {
   #   'CommonTools-swift' => ['CommonTools-swift/Assets/*.png']
   # }
