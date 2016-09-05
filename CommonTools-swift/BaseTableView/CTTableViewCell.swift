@@ -7,7 +7,7 @@
 //
 
 public class CTTableViewCell : UITableViewCell {
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.selectionStyle = UITableViewCellSelectionStyle.None
     }
@@ -16,12 +16,12 @@ public class CTTableViewCell : UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func willDisplayCell() -> Void {
+    public func willDisplayCell() -> Void {
     }
     
-    func endDisplayCell() -> Void {
+    public func endDisplayCell() -> Void {
     }
     
-    func loadData(data: AnyObject) -> Void {
+    public func loadData(data: AnyObject) -> Void {
     }
 }
