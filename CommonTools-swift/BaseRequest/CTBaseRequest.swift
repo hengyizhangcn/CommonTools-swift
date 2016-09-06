@@ -62,40 +62,7 @@ public class CTBaseRequest: NSObject {
             
             let tmpDic = returnObject as? NSDictionary
             
-            if (self.apiUrl!.hasPrefix("https://api.weibo.com") || self.apiUrl!.hasPrefix("https://api.weixin.qq.com")) {
-                self.success?(tmpDic)
-                return
-            }
-            if tmpDic?.objectForKey("errorCode")?.intValue == -1 {
-                
-                if tmpDic?.objectForKey("isPaging")?.intValue == 0 {
-                    let dataDict = tmpDic?.objectForKey("data")
-                    if dataDict != nil {
-                        if (self.requestModel != nil && (dataDict?.isKindOfClass(NSDictionary))!) {
-//                            self.success?(CTUtility.convertDictionaryToModel(dataDict! as! [NSObject : AnyObject], className: self.requestModel! as String))
-                        } else if ((dataDict?.isKindOfClass(NSNull))!) {
-                            self.fail?(returnObject)
-                        } else {
-                            self.success?(tmpDic)
-                        }
-                    }
-                }
-                else {
-                    if (self.requestModel != nil) {
-//                        self.success?(CTUtility.convertDictionaryToModel(tmpDic! as [NSObject : AnyObject], className: self.requestModel! as String))
-                    } else {
-                        self.success?(tmpDic)
-                    }
-                }
-                return
-                
-            } else {
-                if tmpDic?.objectForKey("errorCode") != nil {
-                    self.fail?(returnObject)
-                } else {
-                    self.fail?(returnObject)
-                }
-            }
+            self.success?(tmpDic)
             
             }, fail: { (error:AnyObject?) in
                 
