@@ -5,6 +5,7 @@
 //  Created by zhy on 9/5/16.
 //
 //
+import UIKit
 
 public class CTTableViewCell : UITableViewCell {
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {

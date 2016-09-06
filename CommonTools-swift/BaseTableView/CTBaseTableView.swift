@@ -9,6 +9,8 @@
 //http://stackoverflow.com/questions/24103169/swift-compiler-error-non-modular-header-inside-framework-module
 //http://stackoverflow.com/questions/28815487/building-a-swift-framework-with-references-to-objective-c-code
 
+import UIKit
+
 class CTBaseTableView: UIView {
     
     func viewWillAppear() -> Void {
