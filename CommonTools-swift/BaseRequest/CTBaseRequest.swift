@@ -75,13 +75,13 @@ public class CTBaseRequest: NSObject {
         })
     }
     
-    func getHttpType() -> NSString {
+    public func getHttpType() -> NSString {
         return "POST"
     }
-    func getApiUrl() -> NSString {
+    public func getApiUrl() -> NSString {
         return ""
     }
-    func cancel() -> Void {
+    public func cancel() -> Void {
         if operation != nil {
             operation?.cancel()
         }
