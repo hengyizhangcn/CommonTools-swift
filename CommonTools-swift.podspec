@@ -32,19 +32,19 @@ common tools, like base request, base tableview etc.
   s.ios.deployment_target = '8.0'
   s.requires_arc = true
 
-  # s.source_files = 'CommonTools-swift/CommonTools-swift.h'
+  s.source_files = 'CommonTools-swift/**/*'
 
-  s.subspec 'BaseRequest' do |ss|
-    ss.source_files = 'CommonTools-swift/BaseRequest/*'
-  end
+  #s.subspec 'BaseRequest' do |ss|
+  #  ss.source_files = 'CommonTools-swift/BaseRequest/*'
+  #end
 
-  s.subspec 'BaseTableView' do |ss|
-    ss.source_files = 'CommonTools-swift/BaseTableView/*'
-  end
+  #s.subspec 'BaseTableView' do |ss|
+  #  ss.source_files = 'CommonTools-swift/BaseTableView/*'
+  #end
 
-  s.subspec 'Categories' do |ss|
-    ss.source_files = 'CommonTools-swift/Categories/*'
-  end
+  #s.subspec 'Categories' do |ss|
+  #  ss.source_files = 'CommonTools-swift/Categories/*'
+  #end
 
   # s.resource_bundles = {
   #   'CommonTools-swift' => ['CommonTools-swift/Assets/*.png']
@@ -53,4 +53,5 @@ common tools, like base request, base tableview etc.
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   s.dependency 'AFNetworking', '~> 2.5.3'
+  #s.dependency 'YAUIKit', '~> 3.0.0'
 end

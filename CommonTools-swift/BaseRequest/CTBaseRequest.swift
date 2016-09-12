@@ -82,8 +82,14 @@ public class CTBaseRequest: NSObject {
         return ""
     }
     public func cancel() -> Void {
-        if operation != nil {
+        if operation != nil && operation!.executing {
             operation?.cancel()
         }
+    }
+    public func isExecuting() -> Bool {
+        if operation == nil {
+            return false
+        }
+        return operation!.executing
     }
 }

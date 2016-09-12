@@ -78,6 +78,8 @@ extension UIView {
     
     public var centerX: CGFloat {
         set(newCenterX) {
+            let newCenter: CGPoint = CGPointMake(newCenterX, self.center.y )
+            self.center = newCenter
         }
         get {
             return self.frame.size.width / 2
@@ -86,9 +88,17 @@ extension UIView {
     
     public var centerY: CGFloat {
         set(newCenterY) {
+            let newCenter: CGPoint = CGPointMake(self.center.x, newCenterY)
+            self.center = newCenter
         }
         get {
             return self.frame.size.height / 2
+        }
+    }
+    
+    public var viewCenter: CGPoint {
+        get {
+            return CGPointMake(self.frame.size.width/2, self.frame.size.height/2)
         }
     }
 }
