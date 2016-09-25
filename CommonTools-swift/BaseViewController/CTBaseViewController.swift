@@ -9,16 +9,16 @@
 import UIKit
 //import YAUIKit
 
-public class CTBaseViewController: UIViewController {
-    public var forbiddenPanBack: Bool = false
-    public var tableView: CTBaseTableView?
-    public lazy var navigationBar: CTNavigationBar = {
-        let tempNavigationBar:CTNavigationBar = CTNavigationBar.init(frame: CGRectMake(0, 20, self.view.viewWidth, 44))
+open class CTBaseViewController: UIViewController {
+    open var forbiddenPanBack: Bool = false
+    open var tableView: CTBaseTableView?
+    open lazy var navigationBar: CTNavigationBar = {
+        let tempNavigationBar:CTNavigationBar = CTNavigationBar.init(frame: CGRect(x: 0, y: 20, width: self.view.viewWidth, height: 44))
         self.view.addSubview(tempNavigationBar)
         return tempNavigationBar
     }()
-    public lazy var statusBar: UIView = {
-        let tempStatusBar: UIView = UIView.init(frame: CGRectMake(0, 0, self.view.viewWidth, 20))
+    open lazy var statusBar: UIView = {
+        let tempStatusBar: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: self.view.viewWidth, height: 20))
         self.view.addSubview(tempStatusBar)
         return tempStatusBar
     }()
@@ -26,37 +26,37 @@ public class CTBaseViewController: UIViewController {
 //    private var panBackController: YAPanBackController?
     
     
-    public func backBtnControlEventAction() -> Void {
-        CTNavigator.instance.popViewController(self, animated: true)
+    open func backBtnControlEventAction() -> Void {
+        CTNavigator.instance.popViewController(true)
     }
     
-    public func pushViewController(viewController: UIViewController, animated: Bool) -> Bool {
+    open func pushViewController(_ viewController: UIViewController, animated: Bool) -> Bool {
         return true
     }
     
-    public func popViewControllerAnimated(animated: Bool) -> Bool {
+    open func popViewControllerAnimated(_ animated: Bool) -> Bool {
         return true
     }
     
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor.whiteColor()
+        self.view.backgroundColor = UIColor.white
         if self.navigationController != nil {
             self.navigationController!.setNavigationBarHidden(true, animated: false)
         }
         self.automaticallyAdjustsScrollViewInsets = false
-        navigationBar.hidden = false
-        statusBar.hidden = false
+        navigationBar.isHidden = false
+        statusBar.isHidden = false
         
-        let titleLabel = UILabel.init(frame: CGRectMake(0, 0, 100, 30))
-        titleLabel.font = UIFont.systemFontOfSize(16)
+        let titleLabel = UILabel.init(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        titleLabel.font = UIFont.systemFont(ofSize: 16)
         titleLabel.text = "no title"
-        titleLabel.textAlignment = NSTextAlignment.Center
+        titleLabel.textAlignment = NSTextAlignment.center
         navigationBar.titleView = titleLabel
         
-        let backBtn: UIButton = UIButton.init(frame: CGRectMake(0, 0, 44, 44))
-        backBtn.setImage(UIImage.init(named: "back_arrow_black"), forState: .Normal)
-        backBtn.addTarget(self, action: "backBtnControlEventAction", forControlEvents: .TouchUpInside)
+        let backBtn: UIButton = UIButton.init(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+        backBtn.setImage(UIImage.init(named: "back_arrow_black"), for: UIControlState())
+        backBtn.addTarget(self, action: #selector(CTBaseViewController.backBtnControlEventAction), for: .touchUpInside)
         navigationBar.leftBarItem = backBtn
         
 //        panBackController = YAPanBackController.init(currentViewController: self)

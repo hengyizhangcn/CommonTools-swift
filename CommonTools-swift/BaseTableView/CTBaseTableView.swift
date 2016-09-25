@@ -11,37 +11,37 @@
 
 import UIKit
 
-public class CTBaseTableView: UIView {
-    public var tableView: UITableView?
-    public var currentPage: NSInteger = 0
-    public var totalPage: NSInteger = 0
-    public var currentSection: NSInteger = 0
-    public var loading: Bool = false
-    public var hasNextPage: Bool = false
-    public var modelArray: NSMutableArray = NSMutableArray()
-    public weak var delegate: CTBaseTableViewDelegate?
+open class CTBaseTableView: UIView {
+    open var tableView: UITableView?
+    open var currentPage: NSInteger = 0
+    open var totalPage: NSInteger = 0
+    open var currentSection: NSInteger = 0
+    open var loading: Bool = false
+    open var hasNextPage: Bool = false
+    open var modelArray: NSMutableArray = NSMutableArray()
+    open weak var delegate: CTBaseTableViewDelegate?
     
-    public var scrollBlock: (() -> Void)?
+    open var scrollBlock: (() -> Void)?
     
-    private lazy var footerView: UIView = {
-        let tmpView: UIView = UIView.init(frame: CGRectMake(0, 0, self.viewWidth
-            , 44))
-        let loadingIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
-        loadingIndicatorView.frame = CGRectMake(0, 0, 30, 30)
+    fileprivate lazy var footerView: UIView = {
+        let tmpView: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: self.viewWidth
+            , height: 44))
+        let loadingIndicatorView: UIActivityIndicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
+        loadingIndicatorView.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         loadingIndicatorView.center = tmpView.viewCenter
         tmpView.addSubview(loadingIndicatorView)
         loadingIndicatorView.startAnimating()
         
-        let topLine: UIView = UIView.init(frame: CGRectMake(0, 0, self.viewWidth, 0.5))
-        topLine.backgroundColor = UIColor.grayColor()
+        let topLine: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: self.viewWidth, height: 0.5))
+        topLine.backgroundColor = UIColor.gray
         topLine.alpha = 0.8
         tmpView.addSubview(topLine)
         return tmpView
     }()
-    private var loadingIndicatorView: UIActivityIndicatorView?
+    fileprivate var loadingIndicatorView: UIActivityIndicatorView?
     
     override public convenience init(frame: CGRect) {
-        self.init(frame: frame, style: UITableViewStyle.Plain)
+        self.init(frame: frame, style: UITableViewStyle.plain)
     }
     
     public init(frame: CGRect, style: UITableViewStyle) {
@@ -53,35 +53,35 @@ public class CTBaseTableView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public func viewWillAppear() -> Void {
+    open func viewWillAppear() -> Void {
         tableView?.scrollsToTop = true
     }
     
-    public func viewWillDisappear() -> Void {
+    open func viewWillDisappear() -> Void {
         tableView?.scrollsToTop = false
     }
     
-    public func requestFirstPage() -> Void {
+    open func requestFirstPage() -> Void {
         
     }
     
-    public func requestNextPage() -> Void {
-        
+    open func requestNextPage() -> Void {
+        failLoadData()
     }
     
-    public func showLoadingIndicatorView() -> Void {
-        tableView?.hidden = true
-        loadingIndicatorView?.hidden = false
+    open func showLoadingIndicatorView() -> Void {
+        tableView?.isHidden = true
+        loadingIndicatorView?.isHidden = false
         loadingIndicatorView?.startAnimating()
     }
     
-    public func finishedLoadData(currentPage: NSInteger, dataSource: NSArray, totalPage: NSInteger, needReloadData: Bool) -> Void {
+    open func finishedLoadData(_ currentPage: NSInteger, dataSource: NSArray, totalPage: NSInteger, needReloadData: Bool) -> Void {
         loading = false
         if currentPage == 1 {
             modelArray.removeAllObjects()
         }
-        if dataSource.count > 0 && dataSource.isKindOfClass(NSArray.self) {
-            modelArray.addObjectsFromArray(dataSource as [AnyObject])
+        if dataSource.count > 0 && dataSource.isKind(of: NSArray.self) {
+            modelArray.addObjects(from: dataSource as [AnyObject])
         }
         self.currentPage = currentPage
         
@@ -93,41 +93,41 @@ public class CTBaseTableView: UIView {
         
         tableView?.tableFooterView = hasNextPage ? footerView : nil
         
-        tableView?.hidden = false
-        loadingIndicatorView?.hidden = true
+        tableView?.isHidden = false
+        loadingIndicatorView?.isHidden = true
         loadingIndicatorView?.stopAnimating()
     }
     
-    public func failLoadData() -> Void {
+    open func failLoadData() -> Void {
         loadingIndicatorView?.stopAnimating()
-        loadingIndicatorView?.hidden = true
+        loadingIndicatorView?.isHidden = true
         loading = false
     }
     
     
     
-    func initUI(style: UITableViewStyle) -> Void {
+    func initUI(_ style: UITableViewStyle) -> Void {
         currentPage = 1
         currentSection = 0
-        self.backgroundColor = UIColor.whiteColor()
+        self.backgroundColor = UIColor.white
         modelArray = NSMutableArray()
         
-        tableView = UITableView.init(frame: CGRectMake(0, 0, self.viewWidth, self.viewHeight), style: style)
+        tableView = UITableView.init(frame: CGRect(x: 0, y: 0, width: self.viewWidth, height: self.viewHeight), style: style)
         tableView?.scrollsToTop = false
-        tableView?.backgroundColor = UIColor.whiteColor()
+        tableView?.backgroundColor = UIColor.white
         self.addSubview(tableView!)
-        tableView?.frame = CGRectMake(0, 0, self.viewWidth, self.viewHeight)
-        tableView?.separatorStyle = UITableViewCellSeparatorStyle.None
+        tableView?.frame = CGRect(x: 0, y: 0, width: self.viewWidth, height: self.viewHeight)
+        tableView?.separatorStyle = UITableViewCellSeparatorStyle.none
         
-        loadingIndicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: UIActivityIndicatorViewStyle.Gray)
-        loadingIndicatorView?.hidden = true
+        loadingIndicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)
+        loadingIndicatorView?.isHidden = true
         self.addSubview(loadingIndicatorView!)
         loadingIndicatorView?.frame = (tableView?.frame)!
     }
 
-    public func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+    open func tableView(_ tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: IndexPath) {
         let rowsCount: NSInteger = self.tableView(tableView, numberOfRowsInSection: currentSection)
-        if currentSection == indexPath.section && hasNextPage && self.modelArray.count > 0 && (indexPath.row == rowsCount - 1) && !loading {
+        if currentSection == (indexPath as NSIndexPath).section && hasNextPage && self.modelArray.count > 0 && ((indexPath as NSIndexPath).row == rowsCount - 1) && !loading {
             if delegate == nil {
                 self.requestNextPage()
             } else {
@@ -135,11 +135,11 @@ public class CTBaseTableView: UIView {
             }
         }
     }
-    public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 0
     }
 
-    public func scrollViewDidScroll(scrollView: UIScrollView) {
+    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollBlock?()
     }
     
@@ -147,6 +147,6 @@ public class CTBaseTableView: UIView {
 
 @objc
 public protocol CTBaseTableViewDelegate : NSObjectProtocol {
-    optional func requestFirstPage() -> Void
-    optional func requestNextPage() -> Void
+    @objc optional func requestFirstPage() -> Void
+    @objc optional func requestNextPage() -> Void
 }

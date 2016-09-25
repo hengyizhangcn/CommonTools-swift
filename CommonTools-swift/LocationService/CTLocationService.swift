@@ -7,12 +7,33 @@
 //
 
 import CoreLocation
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
 
-public class CTLocationService: NSObject, CLLocationManagerDelegate {
-    public var locationResult: ((String?) -> Void)?
-    public var locationAddress: String?
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
+
+open class CTLocationService: NSObject, CLLocationManagerDelegate {
+    open var locationResult: ((String?) -> Void)?
+    open var locationAddress: String?
+    open var placemark: CLPlacemark?
     
-    private var locationManager:CLLocationManager?
+    fileprivate var locationManager:CLLocationManager?
     override public init() {
         super.init()
         if CLLocationManager.locationServicesEnabled() {
@@ -21,7 +42,7 @@ public class CTLocationService: NSObject, CLLocationManagerDelegate {
             locationManager?.desiredAccuracy = kCLLocationAccuracyBest
             locationManager?.distanceFilter = 10
 
-            if NSString(string: UIDevice.currentDevice().systemVersion).floatValue >= 8.0 {
+            if NSString(string: UIDevice.current.systemVersion).floatValue >= 8.0 {
                 locationManager?.requestAlwaysAuthorization()
             }
         } else {
@@ -29,14 +50,14 @@ public class CTLocationService: NSObject, CLLocationManagerDelegate {
             alertView.show()
         }
     }
-    public static let instance = CTLocationService()
-    public func startLocation() -> Void {
+    open static let instance = CTLocationService()
+    open func startLocation() -> Void {
         locationManager?.startUpdatingLocation()
     }
-    public func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    open func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let currentLocation: CLLocation = locations.last!
         let geocoder = CLGeocoder.init()
-        geocoder.reverseGeocodeLocation(currentLocation) { (array: [CLPlacemark]?, error: NSError?) in
+        geocoder.reverseGeocodeLocation(currentLocation) { (array: [CLPlacemark]?, error: Error?) in
             if array?.count > 0 {
                 let placemark: CLPlacemark = (array?.first)!
                 var city: String? = placemark.locality
@@ -53,10 +74,11 @@ public class CTLocationService: NSObject, CLLocationManagerDelegate {
                 manager.stopUpdatingLocation()
                 self.locationResult?(address)
                 self.locationAddress = address
+                self.placemark = placemark
             }
         }
     }
-    public func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
+    open func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         
     }
 //    if(error.code == kCLErrorLocationUnknown)

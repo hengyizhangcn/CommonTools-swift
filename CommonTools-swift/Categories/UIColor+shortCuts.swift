@@ -9,11 +9,11 @@
 import UIKit
 
 extension UIColor {
-    static public func colorWithHex(hexValue: NSInteger) -> UIColor {
+    static public func colorWithHex(_ hexValue: NSInteger) -> UIColor {
         return self.colorWithHex(hexValue, alpha: 1.0)
     }
     
-    static public func colorWithHex(hexValue: NSInteger, alpha: CGFloat) -> UIColor {
+    static public func colorWithHex(_ hexValue: NSInteger, alpha: CGFloat) -> UIColor {
         let red = CGFloat((hexValue & 0xFF0000) >> 16)
         let green = CGFloat((hexValue & 0xFF00) >> 8)
         let blue = CGFloat(hexValue & 0xFF)

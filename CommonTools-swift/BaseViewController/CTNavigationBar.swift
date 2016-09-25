@@ -7,12 +7,12 @@
 //
 
 import UIKit
-public class CTNavigationBar : UIView {
-    private var leftBar: UIView?
-    private var rightBar: UIView?
-    private var ct_TitleView: UIView?
+open class CTNavigationBar : UIView {
+    fileprivate var leftBar: UIView?
+    fileprivate var rightBar: UIView?
+    fileprivate var ct_TitleView: UIView?
     
-    public var leftBarItem: UIView? {
+    open var leftBarItem: UIView? {
         get{
             return leftBar!
         }
@@ -25,7 +25,7 @@ public class CTNavigationBar : UIView {
             }
         }
     }
-    public var rightBarItem: UIView? {
+    open var rightBarItem: UIView? {
         get {
             return rightBar!
         }
@@ -38,7 +38,7 @@ public class CTNavigationBar : UIView {
             }
         }
     }
-    public var titleView: UIView? {
+    open var titleView: UIView? {
         get {
             return ct_TitleView!
         }
@@ -52,14 +52,14 @@ public class CTNavigationBar : UIView {
         }
     }
     
-    private var line: UIView?
+    fileprivate var line: UIView?
     
-    public func hideLine() -> Void {
-        self.line?.hidden = true
+    open func hideLine() -> Void {
+        self.line?.isHidden = true
     }
     
-    public func showLine() -> Void {
-        self.line?.hidden = false
+    open func showLine() -> Void {
+        self.line?.isHidden = false
     }
     
     override public init(frame: CGRect) {
@@ -71,10 +71,10 @@ public class CTNavigationBar : UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func initUI() -> Void {
-        self.backgroundColor = UIColor.whiteColor()
-        line = UIView.init(frame: CGRectMake(0, self.viewHeight - 0.5, self.viewWidth, 0.5))
-        line?.backgroundColor = UIColor.lightGrayColor()
+    fileprivate func initUI() -> Void {
+        self.backgroundColor = UIColor.white
+        line = UIView.init(frame: CGRect(x: 0, y: self.viewHeight - 0.5, width: self.viewWidth, height: 0.5))
+        line?.backgroundColor = UIColor.lightGray
         self.addSubview(line!)
     }
 }

@@ -9,27 +9,27 @@
 import Foundation
 
 
-public class CTBaseRequest: NSObject {
-    public var fields: NSMutableDictionary?
-    public var httpType: NSString?
-    public var apiUrl: NSString?
+open class CTBaseRequest: NSObject {
+    open var fields: NSMutableDictionary?
+    open var httpType: NSString?
+    open var apiUrl: NSString?
     
-    public var success: successBlock?
-    public var fail: failBlock?
-    public var uploadProgress: CTUploadProgress?
-    public var downloadProgress: CTDownloadProgress?
+    open var success: successBlock?
+    open var fail: failBlock?
+    open var uploadProgress: CTUploadProgress?
+    open var downloadProgress: CTDownloadProgress?
     
-    public var files: NSArray?
-    public var filesData: NSData?
-    public var fileUploadKey: NSString?
-    public var savedFilePath: NSString?
-    public var requestType: NSNumber?
+    open var files: NSArray?
+    open var filesData: Data?
+    open var fileUploadKey: NSString?
+    open var savedFilePath: NSString?
+    open var requestType: NSNumber?
     
-    public var timeoutInterval: NSTimeInterval?
+    open var timeoutInterval: TimeInterval?
     
-    public var requestModel: NSString?
+    open var requestModel: NSString?
     
-    private var operation: NSOperation?
+    fileprivate var operation: Operation?
     
     public override init() {
         fields = NSMutableDictionary()
@@ -38,22 +38,22 @@ public class CTBaseRequest: NSObject {
         super.init()
     }
     
-    public func sendRequest() -> Void {
-        if operation != nil && operation!.executing {
+    open func sendRequest() -> Void {
+        if operation != nil && operation!.isExecuting {
             return
         }
         httpType = ((httpType != nil) ? httpType : getHttpType())
         CTNetworkEngine.instance.timeoutInterval = timeoutInterval
         
         apiUrl = (apiUrl != nil) ? apiUrl : getApiUrl()
-        if apiUrl == nil || (apiUrl?.isKindOfClass(NSNull))! {
+        if apiUrl == nil || (apiUrl?.isKind(of: NSNull.self))! {
             NSLog("api needed to request")
             return
         }
         
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-        operation = CTNetworkEngine.instance.httpRequest(httpType, URLString: apiUrl, parameters: fields, files: files, filesData:filesData, fileUploadKey: fileUploadKey, savedFilePath: savedFilePath, requestType: requestType, success: { (returnObject: AnyObject?) in
-            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        operation = CTNetworkEngine.instance.httpRequest(httpType, URLString: apiUrl, parameters: fields, files: files, filesData:filesData, fileUploadKey: fileUploadKey, savedFilePath: savedFilePath, requestType: requestType, success: { (returnObject: Any?) in
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
             
             if (!(returnObject is NSDictionary || returnObject is NSArray)) {
                 self.fail?(returnObject)
@@ -64,9 +64,9 @@ public class CTBaseRequest: NSObject {
             
             self.success?(tmpDic)
             
-            }, fail: { (error:AnyObject?) in
+            }, fail: { (error:Any?) in
                 
-                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
                 self.fail?(error)
             }, uploadProgress: { (totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) in
                 self.uploadProgress?(totalBytesWritten, totalBytesExpectedToWrite)
@@ -75,21 +75,21 @@ public class CTBaseRequest: NSObject {
         })
     }
     
-    public func getHttpType() -> NSString {
+    open func getHttpType() -> NSString {
         return "POST"
     }
-    public func getApiUrl() -> NSString {
+    open func getApiUrl() -> NSString {
         return ""
     }
-    public func cancel() -> Void {
-        if operation != nil && operation!.executing {
+    open func cancel() -> Void {
+        if operation != nil && operation!.isExecuting {
             operation?.cancel()
         }
     }
-    public func isExecuting() -> Bool {
+    open func isExecuting() -> Bool {
         if operation == nil {
             return false
         }
-        return operation!.executing
+        return operation!.isExecuting
     }
 }

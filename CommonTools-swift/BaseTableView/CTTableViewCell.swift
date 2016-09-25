@@ -7,22 +7,22 @@
 //
 import UIKit
 
-public class CTTableViewCell : UITableViewCell {
+open class CTTableViewCell : UITableViewCell {
     override public init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.selectionStyle = UITableViewCellSelectionStyle.None
+        self.selectionStyle = UITableViewCellSelectionStyle.none
     }
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    public func willDisplayCell() -> Void {
+    open func willDisplayCell() -> Void {
     }
     
-    public func endDisplayCell() -> Void {
+    open func endDisplayCell() -> Void {
     }
     
-    public func loadData(data: AnyObject) -> Void {
+    open func loadData(_ data: AnyObject) -> Void {
     }
 }

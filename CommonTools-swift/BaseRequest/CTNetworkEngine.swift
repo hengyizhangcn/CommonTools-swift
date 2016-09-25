@@ -9,28 +9,29 @@
 import Foundation
 import AFNetworking
 
+
 public let CTNetworkingEngineTypeCommon:Int32 = 0
 public let CTNetworkingEngineTypeUpload:Int32 = 1
 public let CTNetworkingEngineTypeDownload:Int32 = 2
 
-public typealias successBlock = (AnyObject?) -> Void
-public typealias failBlock = (AnyObject?) -> Void
+public typealias successBlock = (Any?) -> Void
+public typealias failBlock = (Any?) -> Void
 public typealias CTUploadProgress = (Int64, Int64) -> Void
 public typealias CTDownloadProgress = (Int64, Int64) -> Void
 
-public class CTNetworkEngine: NSObject {
-    public var timeoutInterval: NSTimeInterval?
+open class CTNetworkEngine: NSObject {
+    open var timeoutInterval: TimeInterval?
     
-    public var HOST: String?
+    open var HOST: String?
     
-    private lazy var operationManager: AFHTTPRequestOperationManager = {
+    fileprivate lazy var operationManager: AFHTTPRequestOperationManager = {
         return AFHTTPRequestOperationManager()
     }()
     
     
     static let instance = CTNetworkEngine()
     
-    public func httpRequest(type: NSString?, URLString: NSString?, parameters: NSDictionary?, files: NSArray?, filesData: NSData?, fileUploadKey: NSString?, savedFilePath: NSString?, requestType:NSNumber?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?, downloadProgress: CTDownloadProgress?) -> NSOperation {
+    open func httpRequest(_ type: NSString?, URLString: NSString?, parameters: NSDictionary?, files: NSArray?, filesData: Data?, fileUploadKey: NSString?, savedFilePath: NSString?, requestType:NSNumber?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?, downloadProgress: CTDownloadProgress?) -> Operation {
         
         var fixedURLString: NSString? = URLString
         if !(fixedURLString!.hasPrefix("http://") || fixedURLString!.hasPrefix("https://")) && HOST != nil
@@ -38,77 +39,78 @@ public class CTNetworkEngine: NSObject {
             fixedURLString = NSString.init(format: "%@%@", HOST!, fixedURLString!)
         }
         
-        operationManager.requestSerializer.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringCacheData;
+        operationManager.requestSerializer.cachePolicy = URLRequest.CachePolicy.reloadIgnoringCacheData;
         operationManager.requestSerializer.timeoutInterval = (timeoutInterval != nil) ? timeoutInterval! : 10
         operationManager.responseSerializer.acceptableContentTypes = NSSet.init(objects: "text/html", "video/mp4", "application/json", "application/octet-stream") as Set<NSObject>
-        var operation: NSOperation = NSOperation.init()
+        var operation: Operation = Operation.init()
         if fixedURLString == nil {
             return operation
         }
-        switch requestType!.intValue {
+        switch requestType!.int32Value {
         case CTNetworkingEngineTypeCommon:
             operation = commonHttpRequest(type, URLString: fixedURLString, parameters: parameters, success: success, fail: fail)
         case CTNetworkingEngineTypeUpload:
             operation = uploadRequest(fixedURLString, parameters: parameters, files: files, filesData: filesData, fileUploadKey: fileUploadKey, success: success, fail: fail, uploadProgress: uploadProgress)
         case CTNetworkingEngineTypeDownload:
-            operation = downloadRequest(fixedURLString, parameters: parameters, savedFilePath: savedFilePath, success: success, fail: fail, downloadProgress: downloadProgress)
+//            operation = downloadRequest(fixedURLString, parameters: parameters, savedFilePath: savedFilePath, success: success, fail: fail, downloadProgress: downloadProgress)
+            break
         default: break
         }
         return operation
     }
     
-    private func commonHttpRequest(type: NSString?, URLString: NSString?, parameters: NSDictionary?, success: successBlock?, fail: failBlock?) -> NSOperation {
+    fileprivate func commonHttpRequest(_ type: NSString?, URLString: NSString?, parameters: NSDictionary?, success: successBlock?, fail: failBlock?) -> Operation {
         var requestOperation: AFHTTPRequestOperation = AFHTTPRequestOperation.init()
-        if (type!.isEqualToString("GET")) {
-            requestOperation = operationManager.GET(URLString! as String, parameters: parameters!, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                var returnObject: AnyObject?
+        if (type!.isEqual(to: "GET")) {
+            requestOperation = operationManager.get(URLString! as String, parameters: parameters!, success: { (operation: AFHTTPRequestOperation?, responseObject: Any?) in
+                var returnObject: Any?
                 do {
-                    try returnObject = NSJSONSerialization.JSONObjectWithData(operation!.responseData, options: NSJSONReadingOptions.MutableContainers)
+                    try returnObject = JSONSerialization.jsonObject(with: operation!.responseData, options: JSONSerialization.ReadingOptions.mutableContainers)
                 } catch {}
                 success?(returnObject)
-                }, failure: { (operation: AFHTTPRequestOperation?, error: NSError?) in
-                    fail?(error)
+                }, failure: { (operation: AFHTTPRequestOperation?, error: Error?) in
+                    fail?(error as AnyObject)
             })
-        } else if (type!.isEqualToString("POST")) {
-            requestOperation = operationManager.POST(URLString! as String, parameters: parameters, success: { (operation: AFHTTPRequestOperation!, responseObject: AnyObject!) in
-                var returnObject: AnyObject?
+        } else if (type!.isEqual(to: "POST")) {
+            requestOperation = operationManager.post(URLString! as String, parameters: parameters, success: { (operation: AFHTTPRequestOperation?, responseObject: Any?) in
+                var returnObject: Any?
                 do {
-                    try returnObject = NSJSONSerialization.JSONObjectWithData(operation!.responseData, options: NSJSONReadingOptions.MutableContainers)
+                    try returnObject = JSONSerialization.jsonObject(with: operation!.responseData, options: JSONSerialization.ReadingOptions.mutableContainers)
                 } catch {}
                 success?(returnObject)
-                }, failure: { (operation: AFHTTPRequestOperation?, error: NSError?) in
+                }, failure: { (operation: AFHTTPRequestOperation?, error: Error?) in
                     fail?(error)
             })
         }
         return requestOperation
     }
     
-    private func uploadRequest(URLString: NSString?, parameters: NSDictionary?, files: NSArray?, filesData: NSData?, fileUploadKey: NSString?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?) -> NSOperation {
+    fileprivate func uploadRequest(_ URLString: NSString?, parameters: NSDictionary?, files: NSArray?, filesData: Data?, fileUploadKey: NSString?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?) -> Operation {
         var requestOperation: AFHTTPRequestOperation = AFHTTPRequestOperation.init()
-        if files?.count > 0 || filesData != nil {
-            requestOperation = operationManager.POST(URLString as! String, parameters: parameters!, constructingBodyWithBlock: { (formData: AFMultipartFormData!) in
-                if files?.count > 0 {
+        if (files?.count)! > 0 || filesData != nil {
+            requestOperation = operationManager.post(URLString as! String, parameters: parameters!, constructingBodyWith: { (formData: AFMultipartFormData?) in
+                if (files?.count)! > 0 {
                     for filePath in files! {
-                        if !NSFileManager.defaultManager().fileExistsAtPath(filePath as! String) {
+                        if !FileManager.default.fileExists(atPath: filePath as! String) {
                             continue
                         }
                         
-                        let fileData: NSData? = NSData.init(contentsOfFile: filePath as! String)
+                        let fileData: Data? = try? Data.init(contentsOf: URL(fileURLWithPath: filePath as! String))
                         let nameStr: String = (fileUploadKey != nil) ? fileUploadKey! as String : "files"
-                        formData .appendPartWithFileData(fileData, name: nameStr, fileName: filePath.lastPathComponent, mimeType: "application/octet-stream")
+                        formData!.appendPart(withFileData: fileData, name: nameStr, fileName: (filePath as! NSString).lastPathComponent, mimeType: "application/octet-stream")
                     }
                 } else if filesData != nil {
                     let nameStr: String = (fileUploadKey != nil) ? fileUploadKey! as String : "files"
-                    formData .appendPartWithFileData(filesData!, name: nameStr, fileName: "file", mimeType: "application/octet-stream")
+                    formData!.appendPart(withFileData: filesData!, name: nameStr, fileName: "file", mimeType: "application/octet-stream")
                 }
                 
-                }, success: { (operation: AFHTTPRequestOperation?, responseObject: AnyObject?) in
-                    var returnObject: AnyObject?
+                }, success: { (operation: AFHTTPRequestOperation?, responseObject: Any?) in
+                    var returnObject: Any?
                     do {
-                        try returnObject = NSJSONSerialization.JSONObjectWithData(operation!.responseData, options: NSJSONReadingOptions.MutableContainers)
+                        try returnObject = JSONSerialization.jsonObject(with: operation!.responseData, options: JSONSerialization.ReadingOptions.mutableContainers)
                     } catch {}
                     success?(returnObject)
-                }, failure: { (operation: AFHTTPRequestOperation?, error: NSError?) in
+                }, failure: { (operation: AFHTTPRequestOperation?, error: Error?) in
                     fail?(error)
             })
             requestOperation.setUploadProgressBlock({ (bytesWritten: UInt, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) in
@@ -117,75 +119,75 @@ public class CTNetworkEngine: NSObject {
         }
         return requestOperation
     }
-    private func downloadRequest(URLString: NSString?, parameters: NSDictionary?, savedFilePath: NSString?, success: successBlock?, fail: failBlock?, downloadProgress: CTDownloadProgress?) -> NSOperation {
-        var requestOperation: AFHTTPRequestOperation = AFHTTPRequestOperation.init()
-        var destinationFilePath: String
-        let fileManager: NSFileManager = NSFileManager.defaultManager()
-        
-        
-        
-        if savedFilePath != nil {
-            destinationFilePath = savedFilePath as! String
-            
-            if fileManager.fileExistsAtPath(destinationFilePath) {
-                var attributes: NSDictionary
-                do {
-                    try attributes = fileManager.attributesOfItemAtPath(destinationFilePath) as NSDictionary
-                    let theFileSize = attributes.objectForKey(NSFileSize)
-                    if theFileSize?.intValue == 0 {
-                        do {
-                            try fileManager.removeItemAtPath(destinationFilePath)
-                        } catch {}
-                    }
-                } catch {}
-            }
-            
-            if fileManager.fileExistsAtPath(destinationFilePath) {
-                let resultDict = ["errorCode":"-1", "savedFilePath":destinationFilePath]
-                success?(resultDict)
-                return requestOperation
-            }
-        } else {
-            let pathsArray = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
-            destinationFilePath = pathsArray.first! + "/CTCaches/" + URLString!.lastPathComponent
-            
-            
-            if fileManager.fileExistsAtPath(destinationFilePath) {
-                var attributes: NSDictionary
-                do {
-                    try attributes = fileManager.attributesOfItemAtPath(destinationFilePath) as NSDictionary
-                    let theFileSize = attributes.objectForKey(NSFileSize)
-                    if theFileSize?.intValue == 0 {
-                        do {
-                            try fileManager.removeItemAtPath(destinationFilePath)
-                        } catch {}
-                    }
-                } catch {}
-            }
-            
-            if !fileManager.fileExistsAtPath(destinationFilePath) {
-                do {
-                    try fileManager.createDirectoryAtPath(pathsArray.first! + "/CTCaches", withIntermediateDirectories: true, attributes: nil)
-                } catch{}
-            } else {
-                let resultDict = ["errorCode":"-1", "savedFilePath":destinationFilePath]
-                success?(resultDict)
-                return requestOperation
-            }
-        }
-        
-        requestOperation = self.operationManager.HTTPRequestOperationWithRequest(NSURLRequest.init(URL: NSURL.init(string: URLString! as String)!), success: { (operation: AFHTTPRequestOperation?, responseObject: AnyObject?) in
-            let resultDict = ["errorCode":"-1", "savedFilePath":destinationFilePath]
-            success?(resultDict)
-            }, failure: { (operation: AFHTTPRequestOperation?, error: NSError?) in
-                fail?(error)
-        })
-        requestOperation.inputStream = NSInputStream.init(URL: NSURL.init(string: URLString! as String)!)
-        requestOperation.outputStream = NSOutputStream.init(toFileAtPath: destinationFilePath, append: false)
-        requestOperation.setDownloadProgressBlock { (bytesRead: UInt, totalBytesRead: Int64, totalBytesExpectedToRead: Int64) in
-            downloadProgress?(totalBytesRead, totalBytesExpectedToRead)
-        }
-        operationManager.operationQueue .addOperation(requestOperation)
-        return requestOperation
-    }
+//    fileprivate func downloadRequest(_ URLString: NSString?, parameters: NSDictionary?, savedFilePath: NSString?, success: successBlock?, fail: failBlock?, downloadProgress: CTDownloadProgress?) -> Operation {
+//        var requestOperation: AFHTTPRequestOperation = AFHTTPRequestOperation.init()
+//        var destinationFilePath: String
+//        let fileManager: FileManager = FileManager.default
+//        
+//        
+//        
+//        if savedFilePath != nil {
+//            destinationFilePath = savedFilePath as! String
+//            
+//            if fileManager.fileExists(atPath: destinationFilePath) {
+//                var attributes: NSDictionary
+//                do {
+//                    try attributes = fileManager.attributesOfItem(atPath: destinationFilePath) as NSDictionary
+//                    let theFileSize = attributes.object(forKey: FileAttributeKey.size)
+//                    if (theFileSize as AnyObject).int32Value == 0 {
+//                        do {
+//                            try fileManager.removeItem(atPath: destinationFilePath)
+//                        } catch {}
+//                    }
+//                } catch {}
+//            }
+//            
+//            if fileManager.fileExists(atPath: destinationFilePath) {
+//                let resultDict = ["errorCode":"-1", "savedFilePath":destinationFilePath]
+//                success?(resultDict as Any?)
+//                return requestOperation
+//            }
+//        } else {
+//            let pathsArray = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
+//            destinationFilePath = pathsArray.first! + "/CTCaches/" + URLString!.lastPathComponent
+//            
+//            
+//            if fileManager.fileExists(atPath: destinationFilePath) {
+//                var attributes: NSDictionary
+//                do {
+//                    try attributes = fileManager.attributesOfItem(atPath: destinationFilePath) as NSDictionary
+//                    let theFileSize = attributes.object(forKey: FileAttributeKey.size)
+//                    if (theFileSize as AnyObject).int32Value == 0 {
+//                        do {
+//                            try fileManager.removeItem(atPath: destinationFilePath)
+//                        } catch {}
+//                    }
+//                } catch {}
+//            }
+//            
+//            if !fileManager.fileExists(atPath: destinationFilePath) {
+//                do {
+//                    try fileManager.createDirectory(atPath: pathsArray.first! + "/CTCaches", withIntermediateDirectories: true, attributes: nil)
+//                } catch{}
+//            } else {
+//                let resultDict = ["errorCode":"-1", "savedFilePath":destinationFilePath]
+//                success?(resultDict as Any?)
+//                return requestOperation
+//            }
+//        }
+//        
+//        requestOperation = self.operationManager.httpRequestOperation(with: URLRequest.init(url: URL.init(string: URLString! as String)!), success: { (operation: AFHTTPRequestOperation?, responseObject: Any?) in
+//            let resultDict = ["errorCode":"-1", "savedFilePath":destinationFilePath]
+//            success?(resultDict as Any?)
+//            }, failure: { (operation: AFHTTPRequestOperation?, error: Error?) in
+//                fail?(error)
+//        })
+//        requestOperation.inputStream = InputStream.init(url: URL.init(string: URLString! as String)!)
+//        requestOperation.outputStream = OutputStream.init(toFileAtPath: destinationFilePath, append: false)
+//        requestOperation.setDownloadProgressBlock { (bytesRead: UInt, totalBytesRead: Int64, totalBytesExpectedToRead: Int64) in
+//            downloadProgress?(totalBytesRead, totalBytesExpectedToRead)
+//        }
+//        operationManager.operationQueue .addOperation(requestOperation)
+//        return requestOperation
+//    }
 }
