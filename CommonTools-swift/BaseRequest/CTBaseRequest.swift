@@ -11,8 +11,8 @@ import Foundation
 
 open class CTBaseRequest: NSObject {
     open var fields: NSMutableDictionary?
-    open var httpType: NSString?
-    open var apiUrl: NSString?
+    open var httpType: String?
+    open var apiUrl: String?
     
     open var success: successBlock?
     open var fail: failBlock?
@@ -36,6 +36,13 @@ open class CTBaseRequest: NSObject {
         requestType = 0
 
         super.init()
+    }
+    
+    open func setHttpHeader(parameters: [String : String]) {
+        var requestSerializer = CTNetworkEngine.instance.operationManager.requestSerializer
+        for (key, value) in parameters {
+            requestSerializer?.setValue(value, forHTTPHeaderField: key)
+        }
     }
     
     open func sendRequest() -> Void {
@@ -75,10 +82,10 @@ open class CTBaseRequest: NSObject {
         })
     }
     
-    open func getHttpType() -> NSString {
+    open func getHttpType() -> String {
         return "POST"
     }
-    open func getApiUrl() -> NSString {
+    open func getApiUrl() -> String {
         return ""
     }
     open func cancel() -> Void {

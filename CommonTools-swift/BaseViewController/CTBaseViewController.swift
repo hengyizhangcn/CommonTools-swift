@@ -52,6 +52,7 @@ open class CTBaseViewController: UIViewController {
         titleLabel.font = UIFont.systemFont(ofSize: 16)
         titleLabel.text = "no title"
         titleLabel.textAlignment = NSTextAlignment.center
+        titleLabel.textColor = UIColor.white
         navigationBar.titleView = titleLabel
         
         let backBtn: UIButton = UIButton.init(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
@@ -60,5 +61,22 @@ open class CTBaseViewController: UIViewController {
         navigationBar.leftBarItem = backBtn
         
 //        panBackController = YAPanBackController.init(currentViewController: self)
+    }
+    
+    open func tableView(_ tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: IndexPath) {
+        if self.tableView != nil, self.tableView!.tableView != nil {
+            let rowsCount: NSInteger = self.tableView(tableView, numberOfRowsInSection: indexPath.section)
+            if self.tableView!.hasNextPage && self.tableView!.modelArray.count > 0 && indexPath.row == rowsCount - 1 && (indexPath.section + 1) == self.tableView!.tableView!.numberOfSections && !self.tableView!.loading {
+                if self.tableView!.delegate == nil {
+                    self.tableView!.requestNextPage()
+                } else {
+                    self.tableView!.delegate?.requestNextPage!()
+                }
+            }
+        }
+        
+    }
+    open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 0
     }
 }

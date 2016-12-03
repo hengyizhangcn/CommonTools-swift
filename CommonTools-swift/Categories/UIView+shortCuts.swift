@@ -6,9 +6,24 @@
 //  Copyright © 2016 OCT. All rights reserved.
 //
 
+//- (void)removeAllSubViews
+//    {
+//        while ([self.subviews count] != 0) {
+//            UIView *subView = [self.subviews lastObject];
+//            [subView removeFromSuperview];
+//        }
+//}
+
 import UIKit
 
 extension UIView {
+    
+    func removeAllSubViews() -> Void {
+        while self.subviews.count != 0 {
+            let subView: UIView? = self.subviews.last
+            subView?.removeFromSuperview()
+        }
+    }
     
     public var viewWidth: CGFloat {
         set(newViewWidth) {

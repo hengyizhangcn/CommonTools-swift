@@ -24,24 +24,24 @@ open class CTNetworkEngine: NSObject {
     
     open var HOST: String?
     
-    fileprivate lazy var operationManager: AFHTTPRequestOperationManager = {
+    lazy var operationManager: AFHTTPRequestOperationManager = {
         return AFHTTPRequestOperationManager()
     }()
     
     
     static let instance = CTNetworkEngine()
     
-    open func httpRequest(_ type: NSString?, URLString: NSString?, parameters: NSDictionary?, files: NSArray?, filesData: Data?, fileUploadKey: NSString?, savedFilePath: NSString?, requestType:NSNumber?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?, downloadProgress: CTDownloadProgress?) -> Operation {
+    open func httpRequest(_ type: String?, URLString: String?, parameters: NSDictionary?, files: NSArray?, filesData: Data?, fileUploadKey: NSString?, savedFilePath: NSString?, requestType:NSNumber?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?, downloadProgress: CTDownloadProgress?) -> Operation {
         
-        var fixedURLString: NSString? = URLString
+        var fixedURLString = URLString
         if !(fixedURLString!.hasPrefix("http://") || fixedURLString!.hasPrefix("https://")) && HOST != nil
         {
-            fixedURLString = NSString.init(format: "%@%@", HOST!, fixedURLString!)
+            fixedURLString = HOST! + fixedURLString!
         }
         
         operationManager.requestSerializer.cachePolicy = URLRequest.CachePolicy.reloadIgnoringCacheData;
         operationManager.requestSerializer.timeoutInterval = (timeoutInterval != nil) ? timeoutInterval! : 10
-        operationManager.responseSerializer.acceptableContentTypes = NSSet.init(objects: "text/html", "video/mp4", "application/json", "application/octet-stream") as Set<NSObject>
+        operationManager.responseSerializer.acceptableContentTypes = NSSet.init(objects: "text/plain", "text/html", "video/mp4", "application/json", "application/octet-stream") as Set<NSObject>
         var operation: Operation = Operation.init()
         if fixedURLString == nil {
             return operation
@@ -59,9 +59,9 @@ open class CTNetworkEngine: NSObject {
         return operation
     }
     
-    fileprivate func commonHttpRequest(_ type: NSString?, URLString: NSString?, parameters: NSDictionary?, success: successBlock?, fail: failBlock?) -> Operation {
+    fileprivate func commonHttpRequest(_ type: String?, URLString: String?, parameters: NSDictionary?, success: successBlock?, fail: failBlock?) -> Operation {
         var requestOperation: AFHTTPRequestOperation = AFHTTPRequestOperation.init()
-        if (type!.isEqual(to: "GET")) {
+        if (type == "GET") {
             requestOperation = operationManager.get(URLString! as String, parameters: parameters!, success: { (operation: AFHTTPRequestOperation?, responseObject: Any?) in
                 var returnObject: Any?
                 do {
@@ -71,7 +71,7 @@ open class CTNetworkEngine: NSObject {
                 }, failure: { (operation: AFHTTPRequestOperation?, error: Error?) in
                     fail?(error as AnyObject)
             })
-        } else if (type!.isEqual(to: "POST")) {
+        } else if (type == "POST") {
             requestOperation = operationManager.post(URLString! as String, parameters: parameters, success: { (operation: AFHTTPRequestOperation?, responseObject: Any?) in
                 var returnObject: Any?
                 do {
@@ -85,10 +85,10 @@ open class CTNetworkEngine: NSObject {
         return requestOperation
     }
     
-    fileprivate func uploadRequest(_ URLString: NSString?, parameters: NSDictionary?, files: NSArray?, filesData: Data?, fileUploadKey: NSString?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?) -> Operation {
+    fileprivate func uploadRequest(_ URLString: String?, parameters: NSDictionary?, files: NSArray?, filesData: Data?, fileUploadKey: NSString?, success: successBlock?, fail: failBlock?, uploadProgress: CTUploadProgress?) -> Operation {
         var requestOperation: AFHTTPRequestOperation = AFHTTPRequestOperation.init()
         if (files?.count)! > 0 || filesData != nil {
-            requestOperation = operationManager.post(URLString as! String, parameters: parameters!, constructingBodyWith: { (formData: AFMultipartFormData?) in
+            requestOperation = operationManager.post(URLString, parameters: parameters!, constructingBodyWith: { (formData: AFMultipartFormData?) in
                 if (files?.count)! > 0 {
                     for filePath in files! {
                         if !FileManager.default.fileExists(atPath: filePath as! String) {

@@ -45,25 +45,24 @@ open class CTNavigator : NSObject {
         return nav.popViewController(animated: animated)!
     }
     
-    open func presentNavigationViewController(_ viewController: UIViewController, parameters dict: NSDictionary?, animated: Bool, completion: (()->Void)?) -> Bool {
-        return presentNavigationViewController(viewController, parameters: dict, animated: animated, completion: completion, gaussEffect: false)
+    open func presentNavigationViewController(_ viewController: UIViewController, parameters dict: NSDictionary?, animated: Bool, completion: (()->Void)?) -> Void {
+        presentNavigationViewController(viewController, parameters: dict, animated: animated, completion: completion, gaussEffect: false)
     }
     
-    open func presentNavigationViewController(_ viewController: UIViewController, animated: Bool, completion: (()->Void)?) -> Bool {
-        return presentNavigationViewController(viewController, animated: animated, completion: completion, gaussEffect: false)
+    open func presentNavigationViewController(_ viewController: UIViewController, animated: Bool, completion: (()->Void)?) -> Void {
+        presentNavigationViewController(viewController, animated: animated, completion: completion, gaussEffect: false)
     }
     
-    open func presentNavigationViewController(_ viewController: UIViewController, parameters dict: NSDictionary?, animated: Bool, completion: (()->Void)?, gaussEffect: Bool) -> Bool {
+    open func presentNavigationViewController(_ viewController: UIViewController, parameters dict: NSDictionary?, animated: Bool, completion: (()->Void)?, gaussEffect: Bool) -> Void {
         if viewController.validateParameter(dict) {
-            return presentNavigationViewController(viewController, animated: animated, completion: completion, gaussEffect: gaussEffect)
+            presentNavigationViewController(viewController, animated: animated, completion: completion, gaussEffect: gaussEffect)
         }
-        return false
     }
     
-    open func presentNavigationViewController(_ viewController: UIViewController, animated: Bool, completion: (()->Void)?, gaussEffect: Bool) -> Bool {
+    open func presentNavigationViewController(_ viewController: UIViewController, animated: Bool, completion: (()->Void)?, gaussEffect: Bool) -> Void {
         
         if self.navigationControllerPool.count == 0 {
-            return false
+            return
         }
         let nav: UINavigationController = self.navigationControllerPool.lastObject as! UINavigationController
         var presentNavController: UINavigationController
@@ -78,18 +77,16 @@ open class CTNavigator : NSObject {
         }
         nav.topVisibleViewController.present(presentNavController, animated: animated, completion: completion)
         self.navigationControllerPool.add(presentNavController)
-        return true
     }
     
-    open func dismissViewController(_ animated: Bool, completion: (()->Void)?) -> Bool {
+    open func dismissViewController(_ animated: Bool, completion: (()->Void)?) {
         if self.navigationControllerPool.count < 2 {
-            return false
+            return
         }
         let nav: UINavigationController = self.navigationControllerPool.lastObject as! UINavigationController
         let presentVC: UIViewController = nav.topVisibleViewController
         self.navigationControllerPool.remove(nav)
         presentVC.dismiss(animated: animated, completion: completion)
-        return true
     }
     
     override init() {

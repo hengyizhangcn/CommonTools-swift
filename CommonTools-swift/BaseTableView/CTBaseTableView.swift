@@ -23,6 +23,26 @@ open class CTBaseTableView: UIView {
     
     open var scrollBlock: (() -> Void)?
     
+    fileprivate var emptyImageView = UIImageView()
+    fileprivate var emptyDescLabel = UILabel()
+    open var emptyImage: UIImage? {
+        willSet {
+            if let newImage = newValue {
+                emptyImageView.image = newImage
+                emptyImageView.frame = CGRect(x: 0, y: 0, width: newImage.size.width, height: newImage.size.height)
+                emptyImageView.center = self.viewCenter
+                self.insertSubview(emptyImageView, belowSubview: tableView!)
+            }
+        }
+    }
+    open var emptyDesc: String? {
+        willSet {
+            emptyDescLabel.text = newValue
+            emptyDescLabel.frame = CGRect(x: 0, y: emptyImageView.bottom + 20, width: self.viewWidth, height: 16)
+            self.insertSubview(emptyDescLabel, belowSubview: tableView!)
+        }
+    }
+    
     fileprivate lazy var footerView: UIView = {
         let tmpView: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: self.viewWidth
             , height: 44))
@@ -77,7 +97,7 @@ open class CTBaseTableView: UIView {
     
     open func finishedLoadData(_ currentPage: NSInteger, dataSource: NSArray, totalPage: NSInteger, needReloadData: Bool) -> Void {
         loading = false
-        if currentPage == 1 {
+        if currentPage == 0 {
             modelArray.removeAllObjects()
         }
         if dataSource.count > 0 && dataSource.isKind(of: NSArray.self) {
@@ -91,9 +111,17 @@ open class CTBaseTableView: UIView {
             tableView?.reloadData()
         }
         
+        if modelArray.count > 0 {
+            emptyDescLabel.isHidden = true
+            emptyImageView.isHidden = true
+        } else {
+            emptyDescLabel.isHidden = false
+            emptyImageView.isHidden = false
+        }
+        
         tableView?.tableFooterView = hasNextPage ? footerView : nil
         
-        tableView?.isHidden = false
+        tableView?.isHidden = !(modelArray.count > 0)
         loadingIndicatorView?.isHidden = true
         loadingIndicatorView?.stopAnimating()
     }
@@ -107,7 +135,7 @@ open class CTBaseTableView: UIView {
     
     
     func initUI(_ style: UITableViewStyle) -> Void {
-        currentPage = 1
+        currentPage = 0
         currentSection = 0
         self.backgroundColor = UIColor.white
         modelArray = NSMutableArray()
@@ -123,6 +151,15 @@ open class CTBaseTableView: UIView {
         loadingIndicatorView?.isHidden = true
         self.addSubview(loadingIndicatorView!)
         loadingIndicatorView?.frame = (tableView?.frame)!
+        
+        emptyImageView.isHidden = true
+        let tapGesture = UITapGestureRecognizer.init(target: self, action: #selector(emptyImageViewTapAction))
+        emptyImageView.isUserInteractionEnabled = true
+        emptyImageView.addGestureRecognizer(tapGesture)
+        emptyDescLabel.font = UIFont.systemFont(ofSize: 14)
+        emptyDescLabel.textAlignment = .center
+        emptyDescLabel.textColor = UIColor.lightGray
+        emptyDescLabel.isHidden = true
     }
 
     open func tableView(_ tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: IndexPath) {
@@ -141,6 +178,14 @@ open class CTBaseTableView: UIView {
 
     open func scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollBlock?()
+    }
+    
+    func emptyImageViewTapAction() -> Void {
+        if delegate == nil {
+            self.requestFirstPage()
+        } else {
+            delegate?.requestFirstPage!()
+        }
     }
     
 }
