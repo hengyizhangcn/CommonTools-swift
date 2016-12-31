@@ -73,6 +73,14 @@ open class CTBaseTableView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    open func clearData() -> Void {
+        self.emptyImageView.isHidden = false
+        self.emptyDescLabel.isHidden = false
+        self.tableView?.isHidden = true
+        self.modelArray.removeAllObjects()
+        self.tableView?.reloadData()
+    }
+    
     open func viewWillAppear() -> Void {
         tableView?.scrollsToTop = true
     }
@@ -130,6 +138,15 @@ open class CTBaseTableView: UIView {
         loadingIndicatorView?.stopAnimating()
         loadingIndicatorView?.isHidden = true
         loading = false
+        if self.modelArray.count == 0 {
+            self.tableView?.isHidden = true
+            emptyDescLabel.isHidden = false
+            emptyImageView.isHidden = false
+        } else {
+            self.tableView?.isHidden = false
+            emptyDescLabel.isHidden = true
+            emptyImageView.isHidden = true
+        }
     }
     
     

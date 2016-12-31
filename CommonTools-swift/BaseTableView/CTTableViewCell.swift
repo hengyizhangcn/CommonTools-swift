@@ -23,6 +23,6 @@ open class CTTableViewCell : UITableViewCell {
     open func endDisplayCell() -> Void {
     }
     
-    open func loadData(_ data: AnyObject) -> Void {
+    open func loadData(_ data: Any?) -> Void {
     }
 }
